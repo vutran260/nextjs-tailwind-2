@@ -1,16 +1,36 @@
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryOptions,
+} from '@tanstack/react-query';
 import { AppProps } from 'next/app';
 
 import '@/styles/globals.css';
-// !STARTERCONF This is for demo purposes, remove @/styles/colors.css import immediately
-import '@/styles/colors.css';
 
-/**
- * !STARTERCONF info
- * ? `Layout` component is called in every page using `np` snippets. If you have consistent layout across all page, you can add it here too
- */
+import axiosClient from '@/lib/axios';
+
+import DismissableToast from '@/components/DismissableToast';
+
+const defaultQueryFn = async ({ queryKey }: QueryOptions) => {
+  const { data } = await axiosClient.get(`${queryKey?.[0]}`);
+  return data;
+};
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: defaultQueryFn,
+    },
+  },
+});
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DismissableToast />
+      <Component {...pageProps} />
+    </QueryClientProvider>
+  );
 }
 
 export default MyApp;
